@@ -2,84 +2,87 @@
 
 window.addEventListener('DOMContentLoaded', init);
 
-var talk;
+var horn;
+var vol;
 var but;
-const synth = window.speechSynthesis;
-var voices = [];
-var currVoice;
-
+var currentVol;
+var soundHorn;
+const jsConfetti = new JSConfetti();
+//var sound;
 function init() {
   // TODO
-  loadVoices();
+  horn = document.getElementById("horn-select");
+  vol = document.getElementById("volume-controls");
+  but = document.querySelector("button");
+  currentVol = (document.getElementById("volume").value) / (document.getElementById("volume").max);
+  soundHorn = new Audio;
+  soundHorn.volume = document.getElementById("volume").value / document.getElementById("volume").max;
+  horn.addEventListener('change',imgChange);
+  but.addEventListener('click', makeSound);
+  vol.addEventListener('change', changeVolume);
+  console.log('DOM fully loaded and parsed');
 }
 
-function loadVoices()
+function imgChange()
 {
-  voices = synth.getVoices();
-
-  if(voices.length === 0)
+  if(horn.value === "air-horn")
   {
-    setTimeout(function(){ loadVoices(); }, 1000);
+    document.querySelector("#expose img").src = "assets/images/air-horn.svg";
+    document.querySelector("#expose img").alt = "Air horn";
+    document.getElementsByClassName("hidden").src = "assets/audio/air-horn.mp3";
+    document.getElementsByClassName("#hidden img").alt = "Air horn";
+  }
+  else if (horn.value === "car-horn")
+  {
+     document.querySelector("#expose img").src = "assets/images/car-horn.svg";
+     document.querySelector("#expose img").alt = "Car horn";
+     document.getElementsByClassName("hidden").src = "assets/audio/car-horn.mp3";
+     document.getElementsByClassName("hidden").alt = "Car horn";
   }
   else
   {
-    for (let i = 0; i < voices.length; i++)
-    {
-      const option = document.createElement('option');
-      option.textContent = `${voices[i].name} (${voices[i].lang})`;
-
-      
-      option.setAttribute('data-lang', voices[i].lang);
-      option.setAttribute('data-name', voices[i].name);
-      document.getElementById("voice-select").appendChild(option);
-     }
-    talk = document.getElementById('voice-select');
-    but = document.querySelector("button");
-    but.addEventListener('click', pressTalk);
-    talk.addEventListener('change', voiceChange);
-    
-    console.log('DOM fully loaded and parsed');
+     document.querySelector("#expose img").src = "assets/images/party-horn.svg";
+     document.querySelector("#expose img").alt = "Party horn";
+     document.getElementsByClassName("hidden").src = "assets/audio/party-horn.mp3";
+     document.getElementsByClassName("hidden").alt = "Party horn";
+  }
+}
+function makeSound()
+{
+  soundHorn.src = document.getElementsByClassName("hidden").src;
+  soundHorn.play();
+  if(horn.value == "party-horn")
+  {
+    jsConfetti.addConfetti();
+    //jsConfetti.clearCanvas();
   }
 }
 
-function pressTalk()
+function changeVolume()
 {
-  if(currVoice == null)
-  {
-    alert("Voice is not selected!");
-  }
-  else
-  {
-    var inputText = document.getElementById("text-to-speak").value;
-    const utterance1 = new SpeechSynthesisUtterance(inputText);
-    utterance1.voice = voices[currVoice];
-    synth.speak(utterance1);
-    document.querySelector("#explore img").src = "assets/images/smiling-open.png";
-    document.querySelector("#explore img").alt = "Talking face";
-    checkSpeaking();
-  }
-}
-function checkSpeaking()
-{
-  if(synth.speaking)
-  {
-    setTimeout(function(){ checkSpeaking(); }, 100);
-  }
-  else
-  {
-    document.querySelector("#explore img").src = "assets/images/smiling.png";
-    document.querySelector("#explore img").alt = "Smiling face";
-  }
-}
+  //alert("changed");
+  var loudness = document.getElementById("volume");
+  currentVol = loudness.value / loudness.max;
+  soundHorn.volume = currentVol;
 
-function voiceChange()
-{
-  for(var i = 0; i < voices.length; i++)
+  if(currentVol == 0)
   {
-    if(talk.value == `${voices[i].name} (${voices[i].lang})`)
-    {
-      currVoice = i;
-      break;
-    }
+    document.querySelector("#volume-controls img").src = "assets/icons/volume-level-0.svg";
+    document.querySelector("#volume-controls img").alt = "Volume level 0";
+  }
+  else if(1 <= loudness.value && loudness.value < 33)
+  {
+    document.querySelector("#volume-controls img").src = "assets/icons/volume-level-1.svg";
+    document.querySelector("#volume-controls img").alt = "Volume level 1";
+  }
+  else if(33 <= loudness.value && loudness.value < 67)
+  {
+    document.querySelector("#volume-controls img").src = "assets/icons/volume-level-2.svg";
+    document.querySelector("#volume-controls img").alt = "Volume level 2";
+  }
+  else 
+  {
+    document.querySelector("#volume-controls img").src = "assets/icons/volume-level-3.svg";
+    document.querySelector("#volume-controls img").alt = "Volume level 3";
   }
 }
